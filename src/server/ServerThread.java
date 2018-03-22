@@ -1,4 +1,4 @@
-package sample;
+package server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,12 +19,15 @@ class ServerThread extends Thread
     PrintWriter outputStream = null;
     Socket clientSocket = null;
 
-    public ServerThread(Socket clientSocket){
+    public ServerThread(Socket clientSocket)
+    {
         this.clientSocket = clientSocket;
     }
 
 
-    public void run() {
+    @Override
+    public void run()
+    {
         try
         {
             inputStream = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -79,8 +82,7 @@ class ServerThread extends Thread
                     System.out.println("Socket Closed");
                 }
 
-            }
-            catch(IOException ie)
+            } catch(IOException ie)
             {
                 System.out.println("Socket Close Error");
             }

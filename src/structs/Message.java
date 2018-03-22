@@ -1,11 +1,11 @@
-package sample;
+package structs;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 
-public class MessageStorage implements ContainerListener,
+public class Message implements ContainerListener,
                                         ActionListener
 {
     @Override

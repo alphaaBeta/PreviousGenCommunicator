@@ -1,6 +1,5 @@
-package sample;
+package server;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -30,7 +29,7 @@ public class CommServerSocketHandler implements ActionListener
             try{
                 clientSocket = serverSocket.accept();
                 ++numberOfConnections;
-                System.out.printf("Connection estabilished with client no %d:\n", numberOfConnections);
+                System.out.printf("Connection estabilished with Client no %d:\n", numberOfConnections);
                 System.out.println(clientSocket.getInetAddress());
 
                 ServerThread serverThread = new ServerThread(clientSocket);
@@ -43,13 +42,13 @@ public class CommServerSocketHandler implements ActionListener
                 System.out.printf("Connection error");
             }
         }
-
     }
 
 
     @Override
     public void actionPerformed(ActionEvent e)
     {
+
     }
 
     private int numberOfConnections = 0;
