@@ -5,10 +5,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 
-public class Message implements ContainerListener,
-                                        ActionListener
+public class Message //implements ContainerListener,
+                      //                  ActionListener
 {
-    @Override
+    /*@Override
     public void componentAdded(ContainerEvent e)
     {
 
@@ -22,6 +22,22 @@ public class Message implements ContainerListener,
 
     @Override
     public void actionPerformed(ActionEvent e) {
+
+    }*/
+
+    public String Message;
+
+    public String Username;
+
+    public String Date;
+
+    static public String ToXML()
+    {
+
+    }
+
+    static public Message FromXML()
+    {
 
     }
 }

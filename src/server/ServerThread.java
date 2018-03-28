@@ -42,9 +42,8 @@ class ServerThread extends Thread
         try
         {
             line = inputStream.readLine();
-            while(line.compareTo("QUIT")!=0)
+            while(line.compareTo("/quit ")!=0)
             {
-
                 outputStream.println(line);
                 outputStream.flush();
                 System.out.println("Response to Client  :  "+line);

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.*;
 
 
-public class CommServerSocketHandler implements ActionListener
+public class CommServerSocketHandler// implements ActionListener
 {
     public CommServerSocketHandler(InetSocketAddress socketAddress) throws IOException
     {
@@ -44,12 +44,6 @@ public class CommServerSocketHandler implements ActionListener
         }
     }
 
-
-    @Override
-    public void actionPerformed(ActionEvent e)
-    {
-
-    }
 
     private int numberOfConnections = 0;
 

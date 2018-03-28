@@ -1,9 +1,6 @@
 package server;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 //import java.net.ServerSocket;
 
@@ -24,20 +21,20 @@ public class CommServerController
         }
 
 
-        this.logFile = filename;
+        FileInputStream fileInputStream;
 
 
         /* Create or open a logfile */
         try
         {
-            fileInputStream = new FileInputStream(logFile);
+            fileInputStream = new FileInputStream(filename);
         } catch(FileNotFoundException e)
         {
             //If no file found, create one
             try
             {
-                new File(logFile);
-                fileInputStream = new FileInputStream(logFile);
+                new File(filename);
+                fileInputStream = new FileInputStream(filename);
             }catch (Exception el)
             {
                 el.printStackTrace();
@@ -50,11 +47,31 @@ public class CommServerController
 
     }
 
+    public void Start()
+    {
+        String line;
+        try
+        {
+            while (true)
+            {
+                line = inputStream.readLine();
+                wait(10);
+                outputStreamBroadcast.append(line);
+                outputStreamBroadcast.flush();
+                wait(20);
+            }
+        } catch(Exception e)
+        {
+            e.printStackTrace();
+            System.out.println("Error while running the server.");
+        }
+    }
+
     //Handles receiving & sending messages to clients
     private CommServerSocketHandler SocketHandler;
 
-    //For storing logs
-    private String logFile = new String();
-
     private FileInputStream fileInputStream = null;
+
+    public BufferedWriter outputStreamBroadcast;
+    public BufferedReader inputStream;
 }
