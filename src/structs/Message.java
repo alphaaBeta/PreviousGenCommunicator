@@ -31,13 +31,13 @@ public class Message //implements ContainerListener,
 
     public String Date;
 
-    static public String ToXML()
+    public String ToXML()
     {
-
+        return "test";
     }
 
-    static public Message FromXML()
+    public Message FromXML()
     {
-
+        return this;
     }
 }
