@@ -4,9 +4,9 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ServerController
+class ServerController
 {
-    public ServerController(int port)
+    ServerController(int port)
     {
         //Create new server socket
         try {
@@ -36,13 +36,14 @@ public class ServerController
         try
         {
             String line = in.readLine();
-            String temp = null;
+            String temp;
 
             //Command to disconnect from server
             while(line.compareTo("/q") != 0)
             {
                 //Echo:
                 temp = MessageProcessor.ServerSideProcess(line);
+                System.out.println("Message received: \"" + line + "\"");
                 out.println(temp);
                 line = in.readLine();
             }
