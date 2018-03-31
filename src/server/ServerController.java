@@ -1,5 +1,8 @@
 package server;
 
+import structs.Message;
+import structs.XMLOperations;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -36,16 +39,17 @@ class ServerController
         try
         {
             String line = in.readLine();
-            String temp;
+
+            Message message = XMLOperations.FromXML(line);
 
             //Command to disconnect from server
-            while(line.compareTo("/q") != 0)
+            while(message.Content.compareTo("/q") != 0)
             {
-                //Echo:
-                temp = MessageProcessor.ServerSideProcess(line);
-                System.out.println("Message received: \"" + line + "\"");
-                out.println(temp);
+                System.out.println("Message received: \"" + message.Content + "\"");
+                out.println("<" + message.Username + "> " + message.Content);
+
                 line = in.readLine();
+                message = XMLOperations.FromXML(line);
             }
 
             //If we disconnect, close that socket

@@ -1,5 +1,8 @@
 package testClient;
 
+import structs.Message;
+import structs.XMLOperations;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -58,6 +61,9 @@ public class TestClient
     private PrintWriter out;
     private BufferedReader in;
 
+    //placeholder
+    private String username = "nigga";
+
 
     class UserInput implements Runnable
     {
@@ -76,17 +82,22 @@ public class TestClient
 
             System.out.println("Awaiting input to send: ");
             String line = "";
+            Message message = new Message(line, username);
             try
             {
-                while (line.compareTo("/q") != 0) {
+                while (message.Content.compareTo("/q") != 0) {
 
-                    if(!line.isEmpty())
+                    if(!message.Content.isEmpty())
                     {
+                        line = XMLOperations.ToXML(message);
                         clientOut.println(line);
                         clientOut.flush();
                     }
 
                     line = in.readLine();
+
+                    message.Refresh(line, username);
+
 
 
                 }
