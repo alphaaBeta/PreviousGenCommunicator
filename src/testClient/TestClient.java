@@ -5,6 +5,7 @@ import structs.XMLOperations;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class TestClient
 {
@@ -13,6 +14,11 @@ public class TestClient
     {
         try
         {
+            //Get username
+            BufferedReader aux = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print("Enter your nickname: \n");
+            username = aux.readLine();
+
             socket = new Socket(hostName, portNumber);
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -37,6 +43,9 @@ public class TestClient
                 System.out.println(line);
                 line = in.readLine();
             }
+        } catch (SocketException e)
+        {
+            System.out.println("Disconnected from server.");
         } catch (IOException e)
         {
             e.printStackTrace();
@@ -62,15 +71,16 @@ public class TestClient
     private BufferedReader in;
 
     //placeholder
-    private String username = "nigga";
+    private String username;
 
 
+    //Class to run user input in another thread
     class UserInput implements Runnable
     {
         private UserInput(TestClient client)
         {
             in = new BufferedReader(new InputStreamReader(System.in));
-            this.client = client;
+            //this.client = client;
 
             clientOut = client.out;
         }
@@ -78,40 +88,35 @@ public class TestClient
         private BufferedReader in;
 
         @Override
-        public void run() {
+        public void run()
+        {
+            //Send username to identify the user
+            clientOut.println(username);
 
             System.out.println("Awaiting input to send: ");
             String line = "";
             Message message = new Message(line, username);
             try
             {
-                while (message.Content.compareTo("/q") != 0) {
-
+                while (true)
+                {
                     if(!message.Content.isEmpty())
                     {
                         line = XMLOperations.ToXML(message);
                         clientOut.println(line);
-                        clientOut.flush();
                     }
 
                     line = in.readLine();
-
                     message.Refresh(line, username);
-
-
-
                 }
             }   catch(IOException e)
             {
                 e.printStackTrace();
-            } finally
-            {
-                client.Quit();
             }
         }
 
         private PrintWriter clientOut;
-        private TestClient client;
+        //private TestClient client;
     }
 
 }

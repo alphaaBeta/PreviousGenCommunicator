@@ -1,16 +1,13 @@
 package server;
 
 import structs.Message;
-import structs.XMLOperations;
+import structs.UserStorage;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 
 class ServerController
 {
@@ -20,8 +17,8 @@ class ServerController
         try {
             serverSocket = new ServerSocket(port);
             messageListenerAndSender = new MessageListenerAndSender();
-            broadcastList = new ArrayList<>();
-            input = new ArrayList<>();//POWINNO DZIALAC TEORETYCZNIE WYJEBYWALO NA BROADCASTLIST.ADDl
+            inputForBroadcast = new ArrayList<>();
+            connectedUsers = new UserStorage();
 
             System.out.println("Server online");
         }   catch (IOException e)
@@ -39,7 +36,7 @@ class ServerController
             while(true)
             {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Connection accepted!");
+                System.out.println("Connection accepted! New client: " + clientSocket.toString());
 
                 //Create a new thread for each client
                 Runnable runnable = new ServerThread(clientSocket, this);
@@ -59,24 +56,39 @@ class ServerController
     private ServerSocket serverSocket;
 
 
-    ArrayList<Message> input;
-    ArrayList<PrintWriter> broadcastList;
+    ArrayList<Message> inputForBroadcast;
     MessageListenerAndSender messageListenerAndSender;
+    UserStorage connectedUsers;
 
-    class MessageListenerAndSender implements ChangeListener
+    void RemoveCurrentUser(ConnectedClient connectedClient)
+    {
+        connectedUsers.RemoveCurrentUser(connectedClient);
+        System.out.println("User has disconnected: " + connectedClient.user.get_username());
+    }
+
+    class MessageListenerAndSender implements NewGlobalMessageEventListener,
+                                                NewDirectedMessageEventListener
     {
 
         @Override
-        public void stateChanged(ChangeEvent e)
+        public void newDirectedMessageArrived(Message message, String targetUsername)
         {
-            Message message = input.remove(0);
-
-            //String string = XMLOperations.ToXML(message);
-
-            for(PrintWriter pw : broadcastList)
+            for(ConnectedClient client : connectedUsers.getCurrentUsers())
             {
-                pw.println("<" + message.Username + "> " + message.Content);
-                pw.flush();
+                if(client.user.get_username().compareTo(targetUsername) == 0)
+                    client.broadcastStream.println("DM: <" + message.Username + "> " + message.Content);
+            }
+
+        }
+
+        @Override
+        public void newGlobalMessageArrived()
+        {
+            Message message = inputForBroadcast.remove(0);
+
+            for(ConnectedClient client : connectedUsers.getCurrentUsers())
+            {
+                client.broadcastStream.println("<" + message.Username + "> " + message.Content);
             }
         }
     }
