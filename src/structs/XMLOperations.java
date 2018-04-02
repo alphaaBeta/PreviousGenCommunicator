@@ -7,7 +7,11 @@ public class XMLOperations
 {
     static public String ToXML(Message message)
     {
+
         XStream xStream = new XStream(new DomDriver());
+        XStream.setupDefaultSecurity(xStream);
+        xStream.allowTypes(classes);
+
         xStream.alias("message", Message.class);
         String string = xStream.toXML(message);
         string = string.replaceAll("\n", " ");
@@ -18,8 +22,12 @@ public class XMLOperations
     static public Message FromXML(String xml)
     {
         XStream xStream = new XStream(new DomDriver());
-        xStream.alias("message", Message.class);
+        XStream.setupDefaultSecurity(xStream);
+        xStream.allowTypes(classes);
 
+        xStream.alias("message", Message.class);
         return (Message)xStream.fromXML(xml);
     }
+
+    static private Class<?>[] classes = new Class[] { Message.class };
 }

@@ -1,11 +1,13 @@
 package server;
 
 import structs.Message;
-import structs.XMLOperations;
+import structs.UserStorage;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 class ServerController
 {
@@ -14,6 +16,11 @@ class ServerController
         //Create new server socket
         try {
             serverSocket = new ServerSocket(port);
+            messageListenerAndSender = new MessageListenerAndSender();
+            inputForBroadcast = new ArrayList<>();
+            connectedUsers = new UserStorage();
+
+            System.out.println("Server online");
         }   catch (IOException e)
         {
             e.printStackTrace();
@@ -26,44 +33,64 @@ class ServerController
         //Accept connection from client
         try
         {
-            clientSocket = serverSocket.accept();
+            while(true)
+            {
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("Connection accepted! New client: " + clientSocket.toString());
 
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                //Create a new thread for each client
+                Runnable runnable = new ServerThread(clientSocket, this);
+                Thread t = new Thread(runnable);
+                t.start();
+
+            }
         }   catch(IOException e)
         {
             e.printStackTrace();
         }
 
         //Process input
-        try
-        {
-            String line = in.readLine();
 
-            Message message = XMLOperations.FromXML(line);
-
-            //Command to disconnect from server
-            while(message.Content.compareTo("/q") != 0)
-            {
-                System.out.println("Message received: \"" + message.Content + "\"");
-                out.println("<" + message.Username + "> " + message.Content);
-
-                line = in.readLine();
-                message = XMLOperations.FromXML(line);
-            }
-
-            //If we disconnect, close that socket
-            clientSocket.close();
-
-        }   catch(IOException e)
-        {
-            e.printStackTrace();
-        }
     }
 
     private ServerSocket serverSocket;
-    private Socket clientSocket;
 
-    private PrintWriter out;
-    private BufferedReader in;
+
+    ArrayList<Message> inputForBroadcast;
+    MessageListenerAndSender messageListenerAndSender;
+    UserStorage connectedUsers;
+
+    void RemoveCurrentUser(ConnectedClient connectedClient)
+    {
+        connectedUsers.RemoveCurrentUser(connectedClient);
+        System.out.println("User has disconnected: " + connectedClient.user.get_username());
+    }
+
+    class MessageListenerAndSender implements NewGlobalMessageEventListener,
+                                                NewDirectedMessageEventListener
+    {
+
+        @Override
+        public void newDirectedMessageArrived(Message message, String targetUsername)
+        {
+            for(ConnectedClient client : connectedUsers.getCurrentUsers())
+            {
+                if(client.user.get_username().compareTo(targetUsername) == 0)
+                    client.broadcastStream.println("DM: <" + message.Username + "> " + message.Content);
+            }
+
+        }
+
+        @Override
+        public void newGlobalMessageArrived()
+        {
+            Message message = inputForBroadcast.remove(0);
+
+            for(ConnectedClient client : connectedUsers.getCurrentUsers())
+            {
+                client.broadcastStream.println("<" + message.Username + "> " + message.Content);
+            }
+        }
+    }
 }
+
