@@ -9,7 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-class ServerController
+public class ServerController implements Runnable
 {
     ServerController(int port)
     {
