@@ -1,10 +1,7 @@
 package structs;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
 import server.ConnectedClient;
 
-import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,53 +55,12 @@ public class UserStorage
     public UserStorage()
     {
 
-        //String userdataFilename = "userdata";
         currentUsers = new ArrayList<>();
         userDatabase = new HashMap<>();
-
-
-
-
-        /*//Read a user data file
-        _userdataFile = new File(userdataFilename);
-        FileInputStream fis = null;
-        try
-        {
-            File _userdataFile = _userdataFile.createNewFile();
-            fis = new FileInputStream(_userdataFile);
-            XStream xStream = new XStream(new DomDriver());
-            userDatabase = (Map<String, User>) xStream.fromXML(fis);
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-            System.out.println("Could not load user data file");
-        }*/
     }
 
-    /**
-     * Saves userDatabase in file
-     */
-    public void Close()
-    {
-        /*if (!userDatabase.isEmpty())
-        {
-            try
-            {
-                XStream xStream = new XStream(new DomDriver());
-                xStream.alias("userDatabase", java.util.Map.class);
-                String xml = xStream.toXML(userDatabase);
 
-                PrintWriter printWriter = new PrintWriter(_userdataFile);
-                printWriter.append(xml);
-            }catch (FileNotFoundException e)
-            {
-                e.printStackTrace();
-                System.out.println("Could not save to file");
-            }
-        }*/
-    }
 
     private ArrayList<ConnectedClient> currentUsers;
     private Map<String, User> userDatabase;
-    //private File _userdataFile;
 }

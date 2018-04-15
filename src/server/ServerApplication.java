@@ -2,18 +2,10 @@ package server;
 
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Accordion;
-import javafx.scene.control.Button;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-
-import java.util.function.Predicate;
 
 public class ServerApplication extends Application
 {
@@ -24,10 +16,10 @@ public class ServerApplication extends Application
         //Create server controller and run it
         try
         {
-            ServerController serverController = new ServerController(port);
+            ServerController serverController = ServerController.create(port);
             Thread t = new Thread(serverController);
-            //serverController.run();
             t.start();
+
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -38,17 +30,10 @@ public class ServerApplication extends Application
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        AnchorPane root = FXMLLoader.load(getClass().getResource("server.fxml"));
-        //AnchorPane root = new AnchorPane();
-        primaryStage.setTitle("Hellossss World");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        BorderPane root = FXMLLoader.load(getClass().getResource("fxml/server.fxml"));
+
+        primaryStage.setTitle("PreviousGeneratorCommunicator Server");
+        primaryStage.setScene(new Scene(root, 600, 400));
         primaryStage.show();
-        Button button = new Button();
-        button.setText("guzikhahahhaahahhahahahahahaha");
-        button.setOnAction(event -> System.out.println("xddd"));
-
-
-
-
     }
 }

@@ -2,15 +2,17 @@ package server;
 
 import structs.Message;
 import structs.UserStorage;
+import structs.XMLOperations;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
 public class ServerController implements Runnable
 {
+    private static volatile ServerController mInstance;
+
     ServerController(int port)
     {
         //Create new server socket
@@ -25,6 +27,33 @@ public class ServerController implements Runnable
         {
             e.printStackTrace();
         }
+
+    }
+
+    public static ServerController getInstance()
+    {
+        if(mInstance == null)
+        {
+            System.out.println("Server Controller has not been created!");
+        }
+        return mInstance;
+    }
+
+    public static ServerController create(int port)
+    {
+        if (mInstance == null)
+        {
+            synchronized (ServerController.class)
+            {
+                if (mInstance == null)
+                {
+                    mInstance = new ServerController(port);
+                }
+            }
+            return mInstance;
+        }
+        else
+            return null;
 
     }
 
@@ -60,14 +89,19 @@ public class ServerController implements Runnable
     MessageListenerAndSender messageListenerAndSender;
     UserStorage connectedUsers;
 
+    public ArrayList<ConnectedClient> getConnectedUsers()
+    {
+        return connectedUsers.getCurrentUsers();
+    }
+
     void RemoveCurrentUser(ConnectedClient connectedClient)
     {
         connectedUsers.RemoveCurrentUser(connectedClient);
         System.out.println("User has disconnected: " + connectedClient.user.get_username());
     }
 
-    class MessageListenerAndSender implements NewGlobalMessageEventListener,
-                                                NewDirectedMessageEventListener
+    class MessageListenerAndSender implements   NewMessageEventListener.NewGlobalMessageArrived,
+                                                NewMessageEventListener.NewDirectedMessageEventListener
     {
 
         @Override
@@ -76,7 +110,9 @@ public class ServerController implements Runnable
             for(ConnectedClient client : connectedUsers.getCurrentUsers())
             {
                 if(client.user.get_username().compareTo(targetUsername) == 0)
-                    client.broadcastStream.println("DM: <" + message.Username + "> " + message.Content);
+                    //TODO:
+                    //Add a flag to message if it's directed or not. Currently not showing if it's a DM.
+                    client.broadcastStream.println(XMLOperations.ToXML(message));
             }
 
         }
@@ -88,7 +124,7 @@ public class ServerController implements Runnable
 
             for(ConnectedClient client : connectedUsers.getCurrentUsers())
             {
-                client.broadcastStream.println("<" + message.Username + "> " + message.Content);
+                client.broadcastStream.println(XMLOperations.ToXML(message));
             }
         }
     }
