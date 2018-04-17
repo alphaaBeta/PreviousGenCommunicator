@@ -29,7 +29,7 @@ public class ConnectedClient
         return user;
     }
 
-    User user;
+    private User user;
 
     PrintWriter broadcastStream;
 

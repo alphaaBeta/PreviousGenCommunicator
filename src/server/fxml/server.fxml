@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+<?import javafx.scene.control.Accordion?>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="server.fxml.FXMLServer">
+   <bottom>
+      <HBox alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <padding><Insets bottom="4" left="4" right="4" top="4" /></padding>
+         <Button fx:id="refreshButton" onAction="#refresh_connected_list" text="Refresh" />
+      </HBox>
+   </bottom>
+   <center>
+       <Accordion fx:id="connected_list"/>
+   </center>
+</BorderPane>

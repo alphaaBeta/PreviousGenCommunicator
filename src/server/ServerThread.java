@@ -22,7 +22,6 @@ public class ServerThread implements Runnable
 
             connectedClient = this.serverController.connectedUsers.AddConnectedClient(client, in.readLine());
 
-
         } catch (IOException e)
         {
             e.printStackTrace();
@@ -40,7 +39,7 @@ public class ServerThread implements Runnable
             Message message = XMLOperations.FromXML(line);
 
             //Command to disconnect from server
-            while(message.Content.compareTo("/q") != 0)
+            while(serverController.isOn && message.Content.compareTo("/q") != 0)
             {
                 ProcessContent(message);
 
@@ -70,10 +69,16 @@ public class ServerThread implements Runnable
             message.Content = array[2];
             serverController.messageListenerAndSender.newDirectedMessageArrived(message, array[1]);
         }
+
+        else
+        {
         //Else just send it through
         serverController.inputForBroadcast.add(message);
         serverController.messageListenerAndSender.newGlobalMessageArrived();
+        }
+
     }
+
 
 
     private ConnectedClient connectedClient;

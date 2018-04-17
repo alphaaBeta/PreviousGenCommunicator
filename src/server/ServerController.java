@@ -2,17 +2,21 @@ package server;
 
 import structs.Message;
 import structs.UserStorage;
+import structs.XMLOperations;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-class ServerController
+public class ServerController implements Runnable
 {
-    ServerController(int port)
+    private static volatile ServerController mInstance;
+    boolean isOn;
+
+    private ServerController(int port)
     {
+        isOn = true;
         //Create new server socket
         try {
             serverSocket = new ServerSocket(port);
@@ -28,12 +32,39 @@ class ServerController
 
     }
 
+    public static ServerController getInstance()
+    {
+        if(mInstance == null)
+        {
+            System.out.println("Server Controller has not been created!");
+        }
+        return mInstance;
+    }
+
+    static ServerController create(int port)
+    {
+        if (mInstance == null)
+        {
+            synchronized (ServerController.class)
+            {
+                if (mInstance == null)
+                {
+                    mInstance = new ServerController(port);
+                }
+            }
+            return mInstance;
+        }
+        else
+            return null;
+
+    }
+
     public void run()
     {
         //Accept connection from client
         try
         {
-            while(true)
+            while(isOn)
             {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Connection accepted! New client: " + clientSocket.toString());
@@ -46,10 +77,8 @@ class ServerController
             }
         }   catch(IOException e)
         {
-            e.printStackTrace();
+            System.out.println("Server socket gone offline");
         }
-
-        //Process input
 
     }
 
@@ -57,17 +86,40 @@ class ServerController
 
 
     ArrayList<Message> inputForBroadcast;
-    MessageListenerAndSender messageListenerAndSender;
+    public MessageListenerAndSender messageListenerAndSender;
     UserStorage connectedUsers;
+
+    public ArrayList<ConnectedClient> getConnectedUsers()
+    {
+        return connectedUsers.getCurrentUsers();
+    }
 
     void RemoveCurrentUser(ConnectedClient connectedClient)
     {
         connectedUsers.RemoveCurrentUser(connectedClient);
-        System.out.println("User has disconnected: " + connectedClient.user.get_username());
+        System.out.println("User has disconnected: " + connectedClient.getUser().get_username());
+        this.messageListenerAndSender.sendMessageThatUserIsKicked(connectedClient.getUser().get_username());
     }
 
-    class MessageListenerAndSender implements NewGlobalMessageEventListener,
-                                                NewDirectedMessageEventListener
+    void Close()
+    {
+        try
+        {
+        for(ConnectedClient client : getConnectedUsers())
+        {
+            client.clientSocket.close();
+            RemoveCurrentUser(client);
+        }
+            serverSocket.close();
+        } catch ( Exception e)
+        {
+            e.printStackTrace();
+        }
+        isOn = false;
+    }
+
+    public class MessageListenerAndSender implements   NewMessageEventListener.NewGlobalMessageArrived,
+                                                NewMessageEventListener.NewDirectedMessageArrived
     {
 
         @Override
@@ -75,8 +127,10 @@ class ServerController
         {
             for(ConnectedClient client : connectedUsers.getCurrentUsers())
             {
-                if(client.user.get_username().compareTo(targetUsername) == 0)
-                    client.broadcastStream.println("DM: <" + message.Username + "> " + message.Content);
+                if(client.getUser().get_username().compareTo(targetUsername) == 0)
+                    //TODO:
+                    //Add a flag to message if it's directed or not. Currently not showing if it's a DM.
+                    client.broadcastStream.println(XMLOperations.ToXML(message));
             }
 
         }
@@ -88,7 +142,20 @@ class ServerController
 
             for(ConnectedClient client : connectedUsers.getCurrentUsers())
             {
-                client.broadcastStream.println("<" + message.Username + "> " + message.Content);
+                client.broadcastStream.println(XMLOperations.ToXML(message));
+            }
+        }
+
+        public void sendMessageThatUserIsKicked(String targetUsername)
+        {
+            Message kickmsg = new Message("//kick", "SERVER");
+            for(ConnectedClient client : connectedUsers.getCurrentUsers())
+            {
+                if(client.getUser().get_username().compareTo(targetUsername) == 0)
+                {
+                    client.broadcastStream.println(XMLOperations.ToXML(kickmsg));
+                    return;
+                }
             }
         }
     }
