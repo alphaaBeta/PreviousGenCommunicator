@@ -31,21 +31,6 @@ public class CommClient implements Runnable
         }
     }
 
-    public void Disconnect()
-    {
-        //Instance of this class exists, so socket must be connected
-        Message message = new Message("/q", username);
-        SendMessage(message);
-        try
-        {
-            wait(1);
-            Quit();
-        } catch (Exception e)
-        {
-            Quit();
-        }
-
-    }
 
 
     public void run()
@@ -71,9 +56,35 @@ public class CommClient implements Runnable
             e.printStackTrace();
         } finally
         {
-            Disconnect();
-            Quit();
+            DisconnectAndQuit();
         }
+    }
+
+    public void DisconnectAndQuit()
+    {
+        //Instance of this class exists, so socket must be connected
+        Message message = new Message("/q", username);
+        SendMessage(message);
+        try
+        {
+            ClientApplication.getInstance().fxmlMessengerController.NotifyOfDisconnect();
+            wait(1);
+            try {
+                socket.close();
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        } catch (Exception e)
+        {
+            try {
+                socket.close();
+            } catch (IOException e2)
+            {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public void SendMessage(Message message)
@@ -81,15 +92,6 @@ public class CommClient implements Runnable
         String line = XMLOperations.ToXML(message);
 
         out.println(line);
-    }
-
-    private void Quit() {
-        try {
-            socket.close();
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-        }
     }
 
 

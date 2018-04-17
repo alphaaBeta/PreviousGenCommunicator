@@ -12,9 +12,11 @@ import java.util.ArrayList;
 public class ServerController implements Runnable
 {
     private static volatile ServerController mInstance;
+    boolean isOn;
 
-    ServerController(int port)
+    private ServerController(int port)
     {
+        isOn = true;
         //Create new server socket
         try {
             serverSocket = new ServerSocket(port);
@@ -39,7 +41,7 @@ public class ServerController implements Runnable
         return mInstance;
     }
 
-    public static ServerController create(int port)
+    static ServerController create(int port)
     {
         if (mInstance == null)
         {
@@ -62,7 +64,7 @@ public class ServerController implements Runnable
         //Accept connection from client
         try
         {
-            while(true)
+            while(isOn)
             {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Connection accepted! New client: " + clientSocket.toString());
@@ -75,10 +77,8 @@ public class ServerController implements Runnable
             }
         }   catch(IOException e)
         {
-            e.printStackTrace();
+            System.out.println("Server socket gone offline");
         }
-
-        //Process input
 
     }
 
@@ -98,6 +98,24 @@ public class ServerController implements Runnable
     {
         connectedUsers.RemoveCurrentUser(connectedClient);
         System.out.println("User has disconnected: " + connectedClient.getUser().get_username());
+        this.messageListenerAndSender.sendMessageThatUserIsKicked(connectedClient.getUser().get_username());
+    }
+
+    void Close()
+    {
+        try
+        {
+        for(ConnectedClient client : getConnectedUsers())
+        {
+            client.clientSocket.close();
+            RemoveCurrentUser(client);
+        }
+            serverSocket.close();
+        } catch ( Exception e)
+        {
+            e.printStackTrace();
+        }
+        isOn = false;
     }
 
     public class MessageListenerAndSender implements   NewMessageEventListener.NewGlobalMessageArrived,

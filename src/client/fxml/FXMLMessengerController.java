@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -19,19 +20,22 @@ public class FXMLMessengerController
 
     @FXML
     public Button disconnect_button;
+    public VBox textbox;
+    public TextField textfield;
+    public Button send_button;
+    public Label user_label;
 
+
+    private Message message = new Message("null", "empty");
 
     public FXMLMessengerController()
     {
         ClientApplication.getInstance().fxmlMessengerController = this;
+        setUser_label(ClientApplication.getInstance().username);
     }
-    private Message message = new Message("null", "empty");
 
 
-    @FXML
-    public VBox textbox;
-    @FXML
-    public TextField textfield;
+
 
     @FXML
     public void send_message_button(ActionEvent actionEvent)
@@ -51,6 +55,12 @@ public class FXMLMessengerController
         }
     }
 
+    @FXML
+    public void disconnect(ActionEvent actionEvent)
+    {
+        Disconnect();
+    }
+
     private void SendMessage(Message message)
     {
         ClientApplication.getInstance().client.SendMessage(message);
@@ -58,7 +68,6 @@ public class FXMLMessengerController
 
     public void NewMessageArrived(Message message)
     {
-        //Using stringbuilder to make addition to text
         StringBuilder usernameNew = new StringBuilder();
         usernameNew.append('<');
         usernameNew.append(message.Username);
@@ -78,17 +87,24 @@ public class FXMLMessengerController
 
     }
 
-    @FXML
-    public void disconnect(ActionEvent actionEvent)
+    public void NotifyOfDisconnect()
     {
         message.Refresh("DISCONNECTED", "SERVER");
-        disconnect_button.setDisable(true);
+        Platform.runLater(() -> {
+            disconnect_button.setDisable(true);
+            textfield.setDisable(true);
+            send_button.setDisable(true);
+        });
         NewMessageArrived(message);
-        Disconnect();
     }
 
-    public void Disconnect()
+    private void Disconnect()
     {
-        ClientApplication.getInstance().client.Disconnect();
+        ClientApplication.getInstance().client.DisconnectAndQuit();
+    }
+
+    public void setUser_label(String username)
+    {
+        Platform.runLater(()->user_label.setText(username));
     }
 }

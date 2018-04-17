@@ -34,7 +34,7 @@ public class ClientApplication extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception
+    public void start(Stage primaryStage)
     {
         hostName = getParameters().getRaw().get(0);
         port = Integer.parseInt(getParameters().getRaw().get(1));
@@ -47,14 +47,14 @@ public class ClientApplication extends Application {
         primaryStage.setOnCloseRequest(event -> {
                 if (client != null)
                 {
-                    primaryStage.close();
-                    client.Disconnect();
+                    //primaryStage.close();
+                    client.DisconnectAndQuit();
                 }
                 else
                 {
                     try
                     {
-                        primaryStage.close();
+                        //primaryStage.close();
                         stop();
                     } catch (Exception e)
                     {
@@ -106,7 +106,7 @@ public class ClientApplication extends Application {
     private Parent replaceSceneContent(String fxmlFile) throws Exception
     {
 
-        Parent parent = (Parent) FXMLLoader.load(ClientApplication.class.getResource(fxmlFile), null, new JavaFXBuilderFactory());
+        Parent parent = FXMLLoader.load(ClientApplication.class.getResource(fxmlFile), null, new JavaFXBuilderFactory());
 
         Scene scene = stage.getScene();
         if (scene == null)

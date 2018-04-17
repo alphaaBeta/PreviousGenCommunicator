@@ -39,7 +39,7 @@ public class ServerThread implements Runnable
             Message message = XMLOperations.FromXML(line);
 
             //Command to disconnect from server
-            while(message.Content.compareTo("/q") != 0)
+            while(serverController.isOn && message.Content.compareTo("/q") != 0)
             {
                 ProcessContent(message);
 
@@ -50,7 +50,6 @@ public class ServerThread implements Runnable
 
             //If we disconnect, close that socket
             this.serverController.RemoveCurrentUser(connectedClient);
-            serverController.messageListenerAndSender.sendMessageThatUserIsKicked(connectedClient.getUser().get_username());
             connectedClient.clientSocket.close();
 
         }   catch(IOException e)
