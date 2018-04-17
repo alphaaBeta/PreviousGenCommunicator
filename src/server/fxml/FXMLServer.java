@@ -22,11 +22,17 @@ public class FXMLServer
     public void refresh_connected_list(ActionEvent actionEvent)
     {
         ObservableList<TitledPane> userList = FXCollections.observableArrayList();
+
         for (ConnectedClient connectedClient:
                 ServerController.getInstance().getConnectedUsers())
         {
             TitledPane userPane = new TitledPane();
+            Button kickButton = new Button("Kick");
+
             userPane.setText(connectedClient.getUser().get_username());
+            kickButton.setOnAction(e -> ServerController.getInstance().messageListenerAndSender.sendMessageThatUserIsKicked(connectedClient.getUser().get_username()));
+
+            userPane.setContent(kickButton);
             userList.add(userPane);
             /*More info...*/
         }

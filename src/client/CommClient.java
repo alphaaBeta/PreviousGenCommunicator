@@ -1,6 +1,5 @@
 package client;
 
-import javafx.application.Platform;
 import structs.Message;
 import structs.XMLOperations;
 
@@ -32,6 +31,22 @@ public class CommClient implements Runnable
         }
     }
 
+    public void Disconnect()
+    {
+        //Instance of this class exists, so socket must be connected
+        Message message = new Message("/q", username);
+        SendMessage(message);
+        try
+        {
+            wait(1);
+            Quit();
+        } catch (Exception e)
+        {
+            Quit();
+        }
+
+    }
+
 
     public void run()
     {
@@ -43,7 +58,7 @@ public class CommClient implements Runnable
             Message message = XMLOperations.FromXML(line);
             while (message.Content.compareTo("//kick") != 0)
             {
-                ClientApplication.getInstance().fxmlMessengerController.new_message_arrived(message);
+                ClientApplication.getInstance().fxmlMessengerController.NewMessageArrived(message);
                 line = in.readLine();
 
                 message = XMLOperations.FromXML(line);
@@ -56,11 +71,12 @@ public class CommClient implements Runnable
             e.printStackTrace();
         } finally
         {
+            Disconnect();
             Quit();
         }
     }
 
-    public void new_message_to_send(Message message)
+    public void SendMessage(Message message)
     {
         String line = XMLOperations.ToXML(message);
 
@@ -77,55 +93,10 @@ public class CommClient implements Runnable
     }
 
 
-    private Socket socket;
+    private Socket socket = null;
 
-    private PrintWriter out;
-    private BufferedReader in;
+    private PrintWriter out = null;
+    private BufferedReader in = null;
 
     private String username;
-
-
-    /*//Class to run user input in another thread
-    class UserInput implements Runnable
-    {
-        private UserInput(CommClient client)
-        {
-            in = new BufferedReader(new InputStreamReader(System.in));
-            //this.client = client;
-
-            clientOut = client.out;
-        }
-
-        private BufferedReader in;
-
-        @Override
-        public void run()
-        {
-            //Send username to identify the user
-            clientOut.println(username);
-
-            System.out.println("Awaiting input to send: ");
-            String line = "";
-            Message message = new Message(line, username);
-            try
-            {
-                while (true)
-                {
-                    if(!message.Content.isEmpty())
-                    {
-                        line = XMLOperations.ToXML(message);
-                        clientOut.println(line);
-                    }
-
-                    line = in.readLine();
-                    message.Refresh(line, username);
-                }
-            }   catch(IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
-
-        private PrintWriter clientOut;
-    }*/
 }

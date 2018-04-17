@@ -86,7 +86,7 @@ public class ServerController implements Runnable
 
 
     ArrayList<Message> inputForBroadcast;
-    MessageListenerAndSender messageListenerAndSender;
+    public MessageListenerAndSender messageListenerAndSender;
     UserStorage connectedUsers;
 
     public ArrayList<ConnectedClient> getConnectedUsers()
@@ -97,11 +97,11 @@ public class ServerController implements Runnable
     void RemoveCurrentUser(ConnectedClient connectedClient)
     {
         connectedUsers.RemoveCurrentUser(connectedClient);
-        System.out.println("User has disconnected: " + connectedClient.user.get_username());
+        System.out.println("User has disconnected: " + connectedClient.getUser().get_username());
     }
 
-    class MessageListenerAndSender implements   NewMessageEventListener.NewGlobalMessageArrived,
-                                                NewMessageEventListener.NewDirectedMessageEventListener
+    public class MessageListenerAndSender implements   NewMessageEventListener.NewGlobalMessageArrived,
+                                                NewMessageEventListener.NewDirectedMessageArrived
     {
 
         @Override
@@ -109,7 +109,7 @@ public class ServerController implements Runnable
         {
             for(ConnectedClient client : connectedUsers.getCurrentUsers())
             {
-                if(client.user.get_username().compareTo(targetUsername) == 0)
+                if(client.getUser().get_username().compareTo(targetUsername) == 0)
                     //TODO:
                     //Add a flag to message if it's directed or not. Currently not showing if it's a DM.
                     client.broadcastStream.println(XMLOperations.ToXML(message));
@@ -125,6 +125,19 @@ public class ServerController implements Runnable
             for(ConnectedClient client : connectedUsers.getCurrentUsers())
             {
                 client.broadcastStream.println(XMLOperations.ToXML(message));
+            }
+        }
+
+        public void sendMessageThatUserIsKicked(String targetUsername)
+        {
+            Message kickmsg = new Message("//kick", "SERVER");
+            for(ConnectedClient client : connectedUsers.getCurrentUsers())
+            {
+                if(client.getUser().get_username().compareTo(targetUsername) == 0)
+                {
+                    client.broadcastStream.println(XMLOperations.ToXML(kickmsg));
+                    return;
+                }
             }
         }
     }

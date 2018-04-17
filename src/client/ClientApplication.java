@@ -44,34 +44,24 @@ public class ClientApplication extends Application {
         gotoLogin();
         primaryStage.show();
 
-        /*FXMLLoader fxmlLoader = new FXMLLoader();
-        stage = primaryStage;
-        Parent main1 = fxmlLoader.load(getClass().getResource("fxml/login.fxml").openStream());
-        login = new Scene(main1);
-        fxmlLoginController = fxmlLoader.getController();
-
-        FXMLLoader fxmlLoader1 = new FXMLLoader();
-        Parent main2 = fxmlLoader1.load(getClass().getResource("fxml/messenger.fxml").openStream());
-        messenger = new Scene(main2);
-        fxmlMessengerController = fxmlLoader1.getController();
-
-        stage.setTitle("Login");
-        stage.setScene(login);
-        stage.show();*/
-
-
-        /*boolean usernameGot = false;
-        while (!usernameGot)
-        {
-            fxmlLoginController.sem.acquire();
-            if(true)    //check the username-password?
-                usernameGot = true;
-        }*/
-
-
-        //stage.setScene(messenger);
-        //stage.setTitle("PreviousGenCommunicator");
-
+        primaryStage.setOnCloseRequest(event -> {
+                if (client != null)
+                {
+                    primaryStage.close();
+                    client.Disconnect();
+                }
+                else
+                {
+                    try
+                    {
+                        primaryStage.close();
+                        stop();
+                    } catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            });
 
 
 

@@ -10,7 +10,7 @@ class NewMessageEventListener
         void newGlobalMessageArrived();
     }
 
-    interface  NewDirectedMessageEventListener
+    interface NewDirectedMessageArrived
     {
         void newDirectedMessageArrived(Message message, String username);
     }

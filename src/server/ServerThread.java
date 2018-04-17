@@ -50,6 +50,7 @@ public class ServerThread implements Runnable
 
             //If we disconnect, close that socket
             this.serverController.RemoveCurrentUser(connectedClient);
+            serverController.messageListenerAndSender.sendMessageThatUserIsKicked(connectedClient.getUser().get_username());
             connectedClient.clientSocket.close();
 
         }   catch(IOException e)
